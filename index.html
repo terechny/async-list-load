@@ -11,16 +11,23 @@
 <body>
     
     <div>
-        <center>
-            <div id="main" class=" p-2">
-                <div class="row bg-light rounded shadow-sm" style="position: fixed; width: 90%;z-index:100">
-                    <div class="col-sm-6 p-2"> <input type="number" class="form-control" id="scroll-target"> </div>
-                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="scroll-to"> Перейти </button> </div>
-                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="top-scroll"> Первая </button> </div>
-                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="end-scroll"> Последняя </button>  </div>                             
+        <center>                  
+            <div id="main">
+
+                <div style="height:80px;">
+
+                    <div class="container" style="position: fixed; z-index:100;max-width: 900px;">
+                        <div class="row bg-light rounded shadow-sm" >
+                            <div class="col-sm-6 p-2"> <input type="number" class="form-control" id="scroll-target"> </div>
+                            <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="scroll-to"> Перейти </button> </div>
+                            <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="top-scroll"> Первая </button> </div>
+                            <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="end-scroll"> Последняя </button>  </div>                             
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="text-start" style="margin-top: 100px;">
+                <div class="text-start">
                     <ul class="list-group" id="list">
                         <li class="list-group-item active" id="str-0"> <h3> Items list </h3>  </li>
                     </ul>
@@ -136,6 +143,8 @@
             }
 
             scrollTo(element){
+
+                element = element > 2 ? element - 2 : element--
 
                 document.getElementById("str-" + element).scrollIntoView({
                     behavior: "smooth",
