@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+    <div>
+        <center>
+            <div id="main" class=" p-2">
+                <div class="row bg-light rounded shadow-sm" style="position: fixed; width: 90%;z-index:100">
+                    <div class="col-sm-6 p-2"> <input type="number" class="form-control" id="scroll-target"> </div>
+                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="scroll-to"> Перейти </button> </div>
+                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="top-scroll"> Первая </button> </div>
+                    <div class="col-sm-2 p-2"> <button class="btn btn-primary" id="end-scroll"> Последняя </button>  </div>                             
+                </div>
+
+                <div class="text-start" style="margin-top: 100px;">
+                    <ul class="list-group" id="list">
+                        <li class="list-group-item active" id="str-0"> <h3> Items list </h3>  </li>
+                    </ul>
+                </div>
+            </div>
+        </center>
+    </div>
+
+    <script>
+
+        class StringGenerate{
+
+            maxNum
+
+            constructor(num){
+
+                this.maxNum = num             
+            }            
+        
+            async init(){
+
+                await this.getSentence(this.maxNum)
+             
+                return new Promise(function(resolve){
+                                                
+                    setTimeout(() => { resolve(true) }, 1000)                   
+                })
+            }
+
+            async get(maxNum){
+               
+                return new Promise(function(resolve){
+               
+                    for(let i = 0; i < maxNum; i ++){  
+
+                        var newElement = document.createElement("li")
+                        var index = (i + 1)
+                        newElement.classList.add("list-group-item")  
+                        newElement.setAttribute("id", "str-" + index)            
+                        newElement.textContent = index + ". " + localStorage.getItem(i)
+                        document.getElementById("list").appendChild(newElement);
+                    } 
+                                  
+                    resolve(true)
+                });
+            }
+
+            async start(){
+
+                await this.init(this.maxNum)
+                await this.get(this.maxNum)
+            }
+
+            async getSentence(maxNum){
+
+                return new Promise( function(resolve, reject){
+
+                    var resultArray = [];
+
+                    var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+                    var xhr = new XHR();
+                    var type = 'sentence';
+                    var number = 25; 
+                    var params = '&type=' + type + '&number=' + number;
+                    xhr.open('GET', 'https://fish-text.ru/get?' + params, true);
+
+                    xhr.onload = function () {
+                    
+                        var result = JSON.parse(this.responseText);
+
+                        if (result.status === 'success') {
+
+                            var resultText =  result.text
+                        
+                            resultArray = resultText.slice(0,-1).split('.')
+
+                            for(let i = 0; i < maxNum; i ++){
+                                    var rand = Math.floor(Math.random() * resultArray.length);
+                                    localStorage.setItem(i, resultArray[rand])
+                            } 
+
+                        } else {
+                        
+                            console.log(result.errorCode + '\n' + result.text);
+                        }  
+                     
+                        resolve(resultArray)
+                    }
+
+                    xhr.onerror = function () {
+                        alert('Ошибка ' + this.status);
+                    };
+        
+                    xhr.send(); 
+                                       
+                })
+            }
+        }
+
+
+        class scrollStart{
+
+            maxNum
+
+            constructor(num){
+                this.maxNum = num
+            }
+
+            getInputValue(){
+
+                var num = document.getElementById("scroll-target").value
+                return num > this.maxNum ? this.maxNum : num
+            }
+
+            scrollTo(element){
+
+                document.getElementById("str-" + element).scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+
+            scrollToEnd(){
+                this.scrollTo(this.maxNum)
+            }
+
+            scrollToStart(){
+                this.scrollTo(0)
+            }
+
+            scrollToInputValue(){
+                this.scrollTo(this.getInputValue())
+            }
+        }
+
+        // STRING INIT
+
+        const elementCount = 500
+
+        const gen = new StringGenerate(elementCount)
+
+        gen.start()
+        
+        // SCROLL INIT
+        scrollAction = new scrollStart(elementCount)
+
+        document.getElementById("top-scroll").addEventListener("click", function(){
+            scrollAction.scrollToStart()
+        })
+
+        document.getElementById("end-scroll").addEventListener("click", function(){
+            scrollAction.scrollToEnd()
+        })
+
+        document.getElementById("scroll-to").addEventListener("click", function(){
+            scrollAction.scrollToInputValue()   
+        })
+
+    </script>
+
+    <style>
+
+         #main{
+            max-width: 900px;
+            min-height: 100vh;
+         }
+
+    </style>
+</body>
+</html>
